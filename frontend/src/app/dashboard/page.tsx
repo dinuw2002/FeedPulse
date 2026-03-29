@@ -10,7 +10,7 @@ export default function AdminDashboard() {
   const fetchFeedback = async () => {
     setLoading(true);
     try {
-      // Requirement 3.3/3.4: Fetch with query params
+      
       const query = new URLSearchParams({
         category: filterCategory,
         status: filterStatus,
@@ -26,12 +26,12 @@ export default function AdminDashboard() {
     }
   };
 
-  // Re-fetch whenever filters change
+  
   useEffect(() => {
     fetchFeedback();
   }, [filterCategory, filterStatus]);
 
-  // Requirement 3.5: Update Status function
+ 
   const handleStatusChange = async (id: string, newStatus: string) => {
     try {
       await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/feedback/${id}/status`, {
@@ -39,7 +39,7 @@ export default function AdminDashboard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
       });
-      fetchFeedback(); // Refresh the list
+      fetchFeedback(); 
     } catch (err) {
       alert("Failed to update status");
     }

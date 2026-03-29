@@ -51,3 +51,24 @@ export const getAllFeedback = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to fetch feedback" });
   }
 };
+
+export const updateFeedbackStatus = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const updatedFeedback = await Feedback.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true } // Returns the updated document
+    );
+
+    if (!updatedFeedback) {
+      return res.status(404).json({ error: "Feedback not found" });
+    }
+
+    res.json(updatedFeedback);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update status" });
+  }
+};
