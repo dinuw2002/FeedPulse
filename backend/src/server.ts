@@ -1,10 +1,11 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import express, { type Application } from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import feedbackRoutes from './routes/feedback.route.js'; 
 
-dotenv.config();
+
 
 const app: Application = express();
 const PORT = process.env.PORT || 4000;
