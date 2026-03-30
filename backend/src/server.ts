@@ -10,14 +10,14 @@ import feedbackRoutes from './routes/feedback.route.js';
 const app: Application = express();
 const PORT = process.env.PORT || 4000;
 
-// 1. Middleware
+//Middleware
 app.use(cors()); 
 app.use(express.json()); 
 
-// 2. Routes
+//Routes
 app.use('/api/feedback', feedbackRoutes);
 
-// 3. Database Connection & Server Start
+//Database Connection & Server Start
 const MONGO_URI = process.env.MONGO_URI || '';
 
 if (!MONGO_URI) {

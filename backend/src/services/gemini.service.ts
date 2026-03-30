@@ -1,29 +1,81 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import dotenv from 'dotenv';
-
 dotenv.config();
 
-// Use your .env variable - DON'T hardcode the key here anymore!
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
-export const analyzeFeedback = async (title: string, description: string) => {
+interface AIAnalysis {
+  sentiment: "Positive" | "Negative" | "Neutral";
+  priority_score: number;
+  summary: string;
+  tags: string[];
+}
+
+const API_BASE = "https://generativelanguage.googleapis.com";
+
+export const analyzeFeedback = async (title: string, description: string): Promise<AIAnalysis> => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error("GEMINI_API_KEY is missing.");
+
+  
+  const URL_31 = `${API_BASE}/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+  const payload = {
+    contents: [{
+      parts: [{
+        text: `Analyze this feedback. Return ONLY a raw JSON object.
+               Title: "${title}"
+               Description: "${description}"
+               
+               Schema:
+               {
+                 "sentiment": "Positive" | "Negative" | "Neutral",
+                 "priority_score": number (1-10),
+                 "summary": "1-sentence summary",
+                 "tags": ["tag1", "tag2"]
+               }`
+      }]
+    }]
+  };
+
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    const prompt = `Analyze: ${title} - ${description}. Return JSON.`;
+    const response = await fetch(URL_31, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    return JSON.parse(response.text().replace(/```json|```/g, "").trim());
-  } catch (error) {
-    console.error("Gemini API strictly unavailable. Switching to Mock AI Analysis.");
+    const data = await response.json();
+
+    return parseAndSanitizeAIResponse(data);
+  } catch (error: any) {
+    console.error("AI Service Error:", error.message);
     
-    // Requirement 2.2: Mock data that follows your schema
-    // This ensures your Dashboard still looks "AI-Powered" for the interview
-    return {
-      sentiment: description.length > 50 ? "Positive" : "Neutral",
-      priority_score: title.toLowerCase().includes("bug") ? 9 : 4,
-      summary: "AI analysis currently unavailable, showing fallback summary.",
-      tags: ["System", "Automated"]
-    };
+    throw error;
   }
 };
+
+function parseAndSanitizeAIResponse(data: any): AIAnalysis {
+  try {
+    const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+    
+    if (!jsonMatch) throw new Error("No JSON found");
+    
+    const parsed = JSON.parse(jsonMatch[0]);
+
+    return {
+      sentiment: ["Positive", "Negative", "Neutral"].includes(parsed.sentiment) 
+                 ? parsed.sentiment 
+                 : "Neutral",
+      priority_score: Math.max(1, Math.min(10, Number(parsed.priority_score) || 5)),
+      summary: parsed.summary?.substring(0, 150) || "Summary not available.",
+      tags: Array.isArray(parsed.tags) ? parsed.tags.slice(0, 5) : ["General"]
+    };
+  } catch (err) {
+    return {
+      sentiment: "Neutral",
+      priority_score: 5,
+      summary: "AI analysis encountered an error.",
+      tags: ["Fallback"]
+    };
+  }
+}
