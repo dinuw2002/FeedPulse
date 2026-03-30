@@ -1,5 +1,7 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
+
 
 export default function SubmitFeedback() {
   const [formData, setFormData] = useState({
@@ -43,6 +45,17 @@ export default function SubmitFeedback() {
 
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col items-center py-12 px-4">
+      <div className="w-full max-w-2xl flex justify-end mb-4">
+        <Link 
+          href="/login" 
+          className="text-sm font-medium text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A10.003 10.003 0 0012 21a10.003 10.003 0 008.384-4.51m-11.94 0a10.005 10.005 0 0110.128-5.22" />
+          </svg>
+          Admin Portal
+        </Link>
+      </div>
       <div className="max-w-md w-full bg-white rounded-xl shadow-sm p-8 border border-gray-100">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">FeedPulse</h1>
         <p className="text-gray-500 mb-6">Help us improve by sharing your thoughts.</p>
@@ -105,6 +118,7 @@ export default function SubmitFeedback() {
             </p>
           )}
         </form>
+       
       </div>
     </main>
   );
