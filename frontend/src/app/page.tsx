@@ -30,6 +30,12 @@ export default function SubmitFeedback() {
         body: JSON.stringify(formData),
       });
 
+      if (res.status === 429) {
+          const data = await res.json();
+          alert(data.error);
+          return;
+}
+
       if (res.ok) {
         setMessage({ type: "success", text: "Feedback submitted successfully!" });
         setFormData({ title: "", description: "", category: "Improvement", name: "", email: "" });

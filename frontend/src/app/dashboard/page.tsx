@@ -5,12 +5,12 @@ import { useRouter } from "next/navigation";
 export default function AdminDashboard() {
   const [feedbackList, setFeedbackList] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isMounting, setIsMounting] = useState(true); // Prevents UI "flashing"
+  const [isMounting, setIsMounting] = useState(true);
   const [filterCategory, setFilterCategory] = useState("All");
   const [filterStatus, setFilterStatus] = useState("All");
   const router = useRouter();
 
-  // Memoized fetch function so it can be reused safely in effects
+
   const fetchFeedback = useCallback(async () => {
     const token = localStorage.getItem("adminToken");
     if (!token) return;
@@ -43,13 +43,13 @@ export default function AdminDashboard() {
     }
   }, [filterCategory, filterStatus, router]);
 
-  // Handle Authentication and initial load
+
   useEffect(() => {
     const token = localStorage.getItem("adminToken");
     if (!token) {
       router.replace("/login");
     } else {
-      setIsMounting(false); // Auth confirmed, show the UI
+      setIsMounting(false);
       fetchFeedback();
     }
   }, [fetchFeedback, router]);
@@ -77,7 +77,7 @@ export default function AdminDashboard() {
     }
   };
 
-  // Prevent rendering if still checking auth to avoid UI flash
+  
   if (isMounting) {
     return <div className="min-h-screen bg-gray-50 flex items-center justify-center italic text-gray-400">Verifying session...</div>;
   }
