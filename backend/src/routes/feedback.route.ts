@@ -5,11 +5,11 @@ import { protect } from '../middleware/auth.middleware.js';
 import { feedbackRateLimiter } from '../middleware/rateLimiter.middleware.js';
 
 
+
 const router = Router();
 
 
 router.post('/', submitFeedback);
-router.get('/', getAllFeedback);
 router.patch('/:id/status', updateFeedbackStatus);
 
 
@@ -19,5 +19,6 @@ router.get('/', protect, getAllFeedback);
 router.patch('/:id/status', protect, updateFeedbackStatus);
 
 router.post('/', feedbackRateLimiter, submitFeedback);
+
 
 export default router;

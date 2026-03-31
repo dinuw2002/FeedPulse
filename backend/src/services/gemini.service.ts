@@ -16,7 +16,7 @@ export const analyzeFeedback = async (title: string, description: string): Promi
   if (!apiKey) throw new Error("GEMINI_API_KEY is missing.");
 
   
-  const URL_31 = `${API_BASE}/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+  const URL_25 = `${API_BASE}/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
   const payload = {
     contents: [{
@@ -37,7 +37,7 @@ export const analyzeFeedback = async (title: string, description: string): Promi
   };
 
   try {
-    const response = await fetch(URL_31, {
+    const response = await fetch(URL_25, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -51,6 +51,24 @@ export const analyzeFeedback = async (title: string, description: string): Promi
     
     throw error;
   }
+};
+
+export const askGemini = async (prompt: string): Promise<string> => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  const URL = `${API_BASE}/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+  const response = await fetch(URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }]
+    })
+  });
+
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error?.message || "Gemini API Error");
+  
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || "No summary available.";
 };
 
 function parseAndSanitizeAIResponse(data: any): AIAnalysis {
@@ -78,4 +96,5 @@ function parseAndSanitizeAIResponse(data: any): AIAnalysis {
       tags: ["Fallback"]
     };
   }
+
 }

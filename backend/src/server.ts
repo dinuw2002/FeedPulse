@@ -4,6 +4,7 @@ import express, { type Application } from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import feedbackRoutes from './routes/feedback.route.js'; 
+import analyticsRoutes from './routes/analytics.route.js'
 
 
 
@@ -16,6 +17,7 @@ app.use(express.json());
 
 //Routes
 app.use('/api/feedback', feedbackRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 //Database Connection & Server Start
 const MONGO_URI = process.env.MONGO_URI || '';
