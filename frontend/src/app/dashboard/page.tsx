@@ -111,6 +111,23 @@ export default function AdminDashboard() {
   alert(data.summary);
 };
 
+const handleRetrigger = async (id: string) => {
+  try {
+    const token = localStorage.getItem("adminToken");
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/feedback/${id}/retrigger`, {
+      method: 'PATCH',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    if (res.ok) {
+      alert("AI analysis updated successfully!");
+      fetchFeedback(); 
+    }
+  } catch (err) {
+    alert("Error re-triggering AI");
+  }
+};
+
   if (isMounting) return <div className="min-h-screen bg-gray-50 flex items-center justify-center italic text-gray-400">Verifying session...</div>;
 
   return (
@@ -211,65 +228,101 @@ export default function AdminDashboard() {
         ) : (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden overflow-x-auto">
             <table className="w-full text-left border-collapse">
-              <thead className="bg-gray-50/50 border-b border-gray-200">
-                <tr>
-                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Analysis</th>
-                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest text-center">Sentiment</th>
-                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Priority</th>
-                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 text-sm">
-                {feedbackList.map((item: any) => (
-                  <tr key={item._id} className="hover:bg-gray-50/80 transition-colors">
-                    <td className="px-6 py-5">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded">{item.category}</span>
-                        <p className="font-bold text-gray-900 leading-none">{item.title}</p>
-                      </div>
-                      <p className="text-gray-500 line-clamp-2 italic mb-2">"{item.ai_summary || "No summary."}"</p>
-                      <div className="flex flex-wrap gap-1">
-                        {item.ai_tags?.map((tag: string) => (
-                          <span key={tag} className="text-[10px] bg-indigo-50 px-2 py-0.5 rounded-full font-medium text-indigo-600 border border-indigo-100">
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
-                    </td>
-                    <td className="px-6 py-5 text-center">
-                      <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider ${
-                        item.ai_sentiment === 'Positive' ? 'bg-green-100 text-green-700' :
-                        item.ai_sentiment === 'Negative' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'
-                      }`}>
-                        {item.ai_sentiment || "Neutral"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-5">
-                       <div className="flex items-center gap-2">
-                          <div className="w-12 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                             <div 
-                               className={`h-full rounded-full ${item.ai_priority_score > 7 ? 'bg-red-500' : 'bg-indigo-500'}`} 
-                               style={{ width: `${(item.ai_priority_score || 0) * 10}%` }}
-                             />
-                          </div>
-                          <span className="font-mono font-bold text-gray-700">{item.ai_priority_score || 0}/10</span>
-                       </div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <select 
-                        className="bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 text-xs font-bold focus:ring-2 focus:ring-indigo-500 outline-none cursor-pointer"
-                        value={item.status}
-                        onChange={(e) => handleStatusChange(item._id, e.target.value)}
-                      >
-                        <option value="New">New</option>
-                        <option value="In Review">In Review</option>
-                        <option value="Resolved">Resolved</option>
-                      </select>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+  <thead className="bg-gray-50/50 border-b border-gray-200">
+    <tr>
+      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Analysis</th>
+      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest text-center">Sentiment</th>
+      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Priority</th>
+      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Status</th>
+      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest text-right">Actions</th>
+    </tr>
+  </thead>
+  <tbody className="divide-y divide-gray-100 text-sm">
+    {feedbackList.map((item: any) => (
+      <tr key={item._id} className="hover:bg-gray-50/80 transition-colors group">
+        <td className="px-6 py-5">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[10px] font-bold px-1.5 py-0.5 bg-indigo-100 text-indigo-700 rounded uppercase">
+              {item.category}
+            </span>
+            <p className="font-bold text-gray-900 leading-none">{item.title}</p>
+          </div>
+          
+          
+          <p className="text-gray-500 line-clamp-2 italic mb-2 text-xs border-l-2 border-gray-200 pl-2 py-0.5">
+            "{item.ai_summary || "Analysis in progress..."}"
+          </p>
+
+          <div className="flex flex-wrap gap-1">
+            {item.ai_tags?.map((tag: string) => (
+              <span key={tag} className="text-[10px] bg-white px-2 py-0.5 rounded-full font-medium text-gray-600 border border-gray-200 shadow-sm">
+                #{tag}
+              </span>
+            ))}
+          </div>
+        </td>
+
+        <td className="px-6 py-5 text-center">
+          <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm ${
+            item.ai_sentiment === 'Positive' ? 'bg-green-50 text-green-700 border border-green-200' :
+            item.ai_sentiment === 'Negative' ? 'bg-red-50 text-red-700 border border-red-200' : 
+            'bg-gray-50 text-gray-600 border border-gray-200'
+          }`}>
+            {item.ai_sentiment || "Neutral"}
+          </span>
+        </td>
+
+        <td className="px-6 py-5">
+          <div className="flex items-center gap-2">
+            <div className="w-16 h-2 bg-gray-100 rounded-full overflow-hidden border border-gray-200">
+              <div 
+                className={`h-full rounded-full transition-all duration-500 ${
+                  item.ai_priority_score >= 8 ? 'bg-red-500' : 
+                  item.ai_priority_score >= 5 ? 'bg-amber-500' : 'bg-emerald-500'
+                }`} 
+                style={{ width: `${(item.ai_priority_score || 0) * 10}%` }}
+              />
+            </div>
+            <span className="font-mono font-bold text-gray-700 text-xs">
+              {item.ai_priority_score || 0}/10
+            </span>
+          </div>
+        </td>
+
+        <td className="px-6 py-5">
+          <select 
+            className="bg-white border border-gray-200 rounded-md px-2 py-1.5 text-xs font-bold focus:ring-2 focus:ring-indigo-500 outline-none cursor-pointer transition-shadow hover:shadow-sm"
+            value={item.status}
+            onChange={(e) => handleStatusChange(item._id, e.target.value)}
+          >
+            <option value="New">New</option>
+            <option value="In Review">In Review</option>
+            <option value="Resolved">Resolved</option>
+          </select>
+        </td>
+
+       
+        <td className="px-6 py-5 text-right">
+          <button 
+            onClick={() => handleRetrigger(item._id)}
+            className="inline-flex items-center justify-center p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all group-hover:opacity-100"
+            title="Re-run AI Analysis"
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              className="h-4 w-4" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
           </div>
         )}
       </div>
