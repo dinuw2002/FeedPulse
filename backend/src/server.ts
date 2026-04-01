@@ -1,10 +1,11 @@
 import dotenv from 'dotenv';
-dotenv.config();
+import path from 'path';
+dotenv.config({ path: path.resolve(process.cwd(), '../.env') });
 import express, { type Application } from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import feedbackRoutes from './routes/feedback.route.js'; 
-import analyticsRoutes from './routes/analytics.route.js'
+import analyticsRoutes from './routes/analytics.route.js';
 
 
 
@@ -20,7 +21,7 @@ app.use('/api/feedback', feedbackRoutes);
 app.use('/api/analytics', analyticsRoutes);
 
 //Database Connection & Server Start
-const MONGO_URI = process.env.MONGO_URI || '';
+const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/feedpulse";
 
 if (!MONGO_URI) {
   console.error("❌ MONGO_URI is missing in .env file");
