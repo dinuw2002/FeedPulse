@@ -80,3 +80,11 @@ Slack/Discord Integration: A webhook to push a summary of new feedback directly 
 User Reply System: Allow admins to respond to feedback directly from the dashboard, sending an email update to the user.
 
 Visual Data Charts: Use Recharts to show sentiment trends (Positive vs Negative) over time in a graphical format.
+
+## 🐳 Docker Deployment
+The entire stack is containerized for easy setup.
+
+1. Ensure you have your `.env` file in the root with your `GEMINI_API_KEY`.
+2. Run the following command:
+   ```bash
+   docker-compose up --build
