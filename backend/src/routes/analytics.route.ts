@@ -5,6 +5,6 @@ import { protect } from '../middleware/auth.middleware.js';
 
 const router = Router();
 
-router.get('/weekly-report', getWeeklyReport);
+router.get('/weekly-report',protect, getWeeklyReport);
 
 export default router;

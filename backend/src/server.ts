@@ -28,6 +28,7 @@ if (!MONGO_URI) {
   process.exit(1);
 }
 
+if (process.env.NODE_ENV !== 'test'){
 mongoose.connect(MONGO_URI)
   .then(() => {
     console.log('✅ Connected to MongoDB');
@@ -38,3 +39,6 @@ mongoose.connect(MONGO_URI)
   .catch((err) => {
     console.error('❌ MongoDB connection error:', err);
   });
+}
+
+  export default app;

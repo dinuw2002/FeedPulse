@@ -10,14 +10,12 @@ const router = Router();
 
 
 router.post('/', submitFeedback);
-router.patch('/:id/status', updateFeedbackStatus);
-
 
 router.post('/login', login);
 router.get('/stats', protect, getFeedbackStats);
 router.get('/', protect, getAllFeedback);
 router.patch('/:id/status', protect, updateFeedbackStatus);
-router.patch('/:id/retrigger', retriggerAI);
+router.patch('/:id/retrigger',protect, retriggerAI);
 
 router.post('/', feedbackRateLimiter, submitFeedback);
 
