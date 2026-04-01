@@ -1,3 +1,10 @@
-
-# Environment variables (CRITICAL)
+# Secrets and API Keys
 .env
+
+# Dependencies
+node_modules/
+dist/
+.next/
+
+# Docker
+.docker/
